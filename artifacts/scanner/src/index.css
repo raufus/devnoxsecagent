@@ -1,0 +1,168 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+
+  --animate-glitch: glitch 1s linear infinite;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-scanline: scanline 6s linear infinite;
+}
+
+:root {
+  /* Force Dark Cyberpunk Theme universally */
+  --background: 240 10% 4%;
+  --foreground: 150 20% 90%;
+  
+  --card: 240 10% 6%;
+  --card-foreground: 150 20% 90%;
+  --card-border: 150 100% 20%;
+  
+  --popover: 240 10% 6%;
+  --popover-foreground: 150 20% 90%;
+  --popover-border: 150 100% 20%;
+  
+  --primary: 150 100% 50%;
+  --primary-foreground: 240 10% 4%;
+  
+  --secondary: 180 100% 40%;
+  --secondary-foreground: 240 10% 4%;
+  
+  --muted: 240 10% 12%;
+  --muted-foreground: 150 20% 60%;
+  
+  --accent: 320 100% 50%;
+  --accent-foreground: 240 10% 4%;
+  
+  --destructive: 0 100% 55%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 150 100% 20%;
+  --input: 240 10% 12%;
+  --ring: 150 100% 50%;
+
+  /* Chart Colors (Severity) */
+  --chart-1: 0 100% 55%;     /* Critical */
+  --chart-2: 30 100% 55%;    /* High */
+  --chart-3: 45 100% 50%;    /* Medium */
+  --chart-4: 200 100% 50%;   /* Low */
+  --chart-5: 240 10% 40%;    /* Info */
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground font-sans antialiased selection:bg-primary selection:text-primary-foreground;
+    background-image: 
+      linear-gradient(to right, hsl(var(--border) / 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center center;
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-wider text-primary drop-shadow-[0_0_8px_rgba(0,255,128,0.4)];
+  }
+
+  /* Custom Scrollbar for Terminal */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 border border-primary/50;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/40;
+  }
+}
+
+@layer utilities {
+  .cyber-box {
+    @apply relative bg-card border border-primary/30 shadow-[inset_0_0_20px_rgba(0,255,128,0.05)] 
+           backdrop-blur-sm transition-all duration-300;
+  }
+  .cyber-box:hover {
+    @apply border-primary/60 shadow-[inset_0_0_20px_rgba(0,255,128,0.1),0_0_15px_rgba(0,255,128,0.1)];
+  }
+  .cyber-button {
+    @apply relative overflow-hidden font-display tracking-widest uppercase font-bold 
+           border border-primary bg-primary/10 text-primary px-6 py-3 
+           hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_20px_rgba(0,255,128,0.6)]
+           transition-all duration-300;
+  }
+  .cyber-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease-in-out;
+  }
+  .cyber-button:hover::before {
+    left: 100%;
+  }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 1px) }
+  40% { transform: translate(-1px, -1px) }
+  60% { transform: translate(2px, 1px) }
+  80% { transform: translate(1px, -1px) }
+  100% { transform: translate(0) }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}

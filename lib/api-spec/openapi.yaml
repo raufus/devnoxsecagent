@@ -1,0 +1,775 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: AutoPentest AI - Vulnerability Scanner API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: scans
+    description: Scan management
+  - name: vulnerabilities
+    description: Vulnerability findings
+  - name: reports
+    description: Report generation
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /scans:
+    get:
+      operationId: listScans
+      tags: [scans]
+      summary: List all scan sessions
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: number
+          description: Max number of results
+        - name: offset
+          in: query
+          schema:
+            type: number
+          description: Pagination offset
+      responses:
+        "200":
+          description: List of scan sessions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanListResponse"
+    post:
+      operationId: createScan
+      tags: [scans]
+      summary: Start a new vulnerability scan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScanRequest"
+      responses:
+        "201":
+          description: Scan created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scan"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scans/{scanId}:
+    get:
+      operationId: getScan
+      tags: [scans]
+      summary: Get a scan session by ID
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteScan
+      tags: [scans]
+      summary: Delete a scan and its findings
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scans/{scanId}/cancel:
+    post:
+      operationId: cancelScan
+      tags: [scans]
+      summary: Cancel a running scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scan cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scan"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scans/{scanId}/findings:
+    get:
+      operationId: getScanFindings
+      tags: [vulnerabilities]
+      summary: Get all vulnerability findings for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [critical, high, medium, low, info]
+          description: Filter by severity
+        - name: type
+          in: query
+          schema:
+            type: string
+          description: Filter by vulnerability type
+      responses:
+        "200":
+          description: List of findings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FindingListResponse"
+
+  /scans/{scanId}/report:
+    get:
+      operationId: getScanReport
+      tags: [reports]
+      summary: Get report for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scan report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanReport"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /scans/{scanId}/events:
+    get:
+      operationId: getScanEvents
+      tags: [scans]
+      summary: Get activity log/events for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of events
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanEventListResponse"
+
+  /scans/{scanId}/exploit:
+    get:
+      operationId: getScanExploit
+      tags: [scans]
+      summary: Get exploit engine results for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Exploit engine report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExploitResponse"
+
+  /scans/{scanId}/recon:
+    get:
+      operationId: getScanRecon
+      tags: [scans]
+      summary: Get OSINT recon intelligence for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Recon data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconResponse"
+
+  /scans/{scanId}/graph:
+    get:
+      operationId: getScanGraph
+      tags: [scans]
+      summary: Get Maltego-style attack graph for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Attack graph nodes and edges
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GraphResponse"
+
+  /scans/{scanId}/ai-decisions:
+    get:
+      operationId: getScanAiDecisions
+      tags: [scans]
+      summary: Get AI orchestrator decisions for a scan
+      parameters:
+        - name: scanId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: AI decisions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiDecisionsResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    CreateScanRequest:
+      type: object
+      properties:
+        targetUrl:
+          type: string
+          description: The target URL to scan
+        scanType:
+          type: string
+          enum: [quick, full, deep]
+          description: Scan depth
+        modules:
+          type: array
+          items:
+            type: string
+            enum: [recon, xss, sqli, csrf, idor, ssrf, headers, files, auth]
+          description: Scan modules to enable
+        consentAcknowledged:
+          type: boolean
+          description: User acknowledged legal consent
+      required:
+        - targetUrl
+        - scanType
+        - consentAcknowledged
+
+    Scan:
+      type: object
+      properties:
+        id:
+          type: string
+        targetUrl:
+          type: string
+        scanType:
+          type: string
+          enum: [quick, full, deep]
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+        progress:
+          type: number
+          description: 0-100 percentage
+        currentPhase:
+          type: string
+          enum: [idle, recon, scanning, ai_analysis, exploitation, reporting, done]
+        totalFindings:
+          type: number
+        criticalCount:
+          type: number
+        highCount:
+          type: number
+        mediumCount:
+          type: number
+        lowCount:
+          type: number
+        infoCount:
+          type: number
+        techStack:
+          type: array
+          items:
+            type: string
+        startedAt:
+          type: string
+          format: date-time
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - targetUrl
+        - scanType
+        - status
+        - progress
+        - currentPhase
+        - totalFindings
+        - criticalCount
+        - highCount
+        - mediumCount
+        - lowCount
+        - infoCount
+        - techStack
+        - createdAt
+
+    ScanDetail:
+      allOf:
+        - $ref: "#/components/schemas/Scan"
+        - type: object
+          properties:
+            subdomains:
+              type: array
+              items:
+                type: string
+            endpoints:
+              type: array
+              items:
+                type: string
+            modules:
+              type: array
+              items:
+                type: string
+
+    ScanListResponse:
+      type: object
+      properties:
+        scans:
+          type: array
+          items:
+            $ref: "#/components/schemas/Scan"
+        total:
+          type: number
+      required:
+        - scans
+        - total
+
+    Finding:
+      type: object
+      properties:
+        id:
+          type: string
+        scanId:
+          type: string
+        type:
+          type: string
+          description: Vulnerability type (e.g. XSS, SQLi, SSRF)
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info]
+        endpoint:
+          type: string
+        method:
+          type: string
+          nullable: true
+        parameter:
+          type: string
+          nullable: true
+        payload:
+          type: string
+          nullable: true
+        evidence:
+          type: string
+          nullable: true
+        request:
+          type: string
+          nullable: true
+        response:
+          type: string
+          nullable: true
+        recommendation:
+          type: string
+        cweId:
+          type: string
+          nullable: true
+        cvssScore:
+          type: number
+          nullable: true
+        aiAnalysis:
+          type: string
+          nullable: true
+        falsePositive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - scanId
+        - type
+        - title
+        - description
+        - severity
+        - endpoint
+        - recommendation
+        - falsePositive
+        - createdAt
+
+    FindingListResponse:
+      type: object
+      properties:
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Finding"
+        total:
+          type: number
+      required:
+        - findings
+        - total
+
+    ScanEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        scanId:
+          type: string
+        phase:
+          type: string
+        message:
+          type: string
+        level:
+          type: string
+          enum: [info, warning, success, error]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - scanId
+        - phase
+        - message
+        - level
+        - createdAt
+
+    ScanEventListResponse:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScanEvent"
+      required:
+        - events
+
+    ScanReport:
+      type: object
+      properties:
+        scan:
+          $ref: "#/components/schemas/ScanDetail"
+        findings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Finding"
+        summary:
+          type: string
+        riskScore:
+          type: number
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - scan
+        - findings
+        - summary
+        - riskScore
+        - generatedAt
+
+    ReconResponse:
+      type: object
+      properties:
+        reconData:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+            scanId:
+              type: string
+            targetDomain:
+              type: string
+            ipAddresses:
+              type: array
+              items:
+                type: string
+            subdomains:
+              type: array
+              items:
+                type: object
+            dnsRecords:
+              type: array
+              items:
+                type: object
+            whoisData:
+              type: object
+            emails:
+              type: array
+              items:
+                type: string
+            socialProfiles:
+              type: array
+              items:
+                type: object
+            techStack:
+              type: array
+              items:
+                type: string
+            cloudProviders:
+              type: array
+              items:
+                type: string
+            networkInfo:
+              type: object
+            createdAt:
+              type: string
+              format: date-time
+      required:
+        - reconData
+
+    GraphNode:
+      type: object
+      properties:
+        id:
+          type: string
+        scanId:
+          type: string
+        nodeType:
+          type: string
+          enum: [domain, subdomain, ip, server, vulnerability, exploit, email, service]
+        label:
+          type: string
+        data:
+          type: object
+        severity:
+          type: string
+          enum: [critical, high, medium, low, info, none]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - scanId
+        - nodeType
+        - label
+        - severity
+
+    GraphEdge:
+      type: object
+      properties:
+        id:
+          type: string
+        scanId:
+          type: string
+        sourceId:
+          type: string
+        targetId:
+          type: string
+        edgeType:
+          type: string
+        label:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - scanId
+        - sourceId
+        - targetId
+        - edgeType
+
+    GraphResponse:
+      type: object
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphNode"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphEdge"
+      required:
+        - nodes
+        - edges
+
+    AiDecision:
+      type: object
+      properties:
+        id:
+          type: string
+        scanId:
+          type: string
+        phase:
+          type: string
+        input:
+          type: string
+        reasoning:
+          type: string
+        decision:
+          type: string
+        actions:
+          type: array
+          items:
+            type: object
+        confidence:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - scanId
+        - phase
+        - reasoning
+        - decision
+        - confidence
+
+    AiDecisionsResponse:
+      type: object
+      properties:
+        decisions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiDecision"
+      required:
+        - decisions
+
+    ExploitResponse:
+      type: object
+      properties:
+        exploitReport:
+          type: object
+          nullable: true
+          description: Full exploit engine report
+        decision:
+          type: string
+          nullable: true
+        reasoning:
+          type: string
+          nullable: true
+        actions:
+          type: array
+          nullable: true
+          items:
+            type: object
+        confidence:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        message:
+          type: string
+          nullable: true
+      required: []

@@ -1,0 +1,22 @@
+packages:
+  "framer-motion": "For scanning radar animations, terminal entry effects, and progress bars"
+  "recharts": "For dashboard charts showing vulnerabilities by severity"
+  "date-fns": "For formatting scan timestamps"
+  "@hookform/resolvers": "Zod validation for the new scan form"
+  "react-hook-form": "For complex form state management"
+  "clsx": "Utility for constructing className strings"
+  "tailwind-merge": "Utility for merging tailwind classes safely"
+  "lucide-react": "For UI icons"
+
+images:
+  - path: "artifacts/scanner/public/images/cyberpunk-bg.png"
+    description: "Dark, glowing neon green and cyan cyberpunk digital grid or matrix code raining down, low opacity, abstract background"
+    aspect_ratio: "16:9"
+  - path: "artifacts/scanner/public/images/logo-shield.png"
+    description: "Minimalist glowing neon green cybersecurity shield icon mixed with a skull, digital glitch effect, transparent background"
+    aspect_ratio: "1:1"
+
+notes:
+  - Expecting SSE stream at /api/scans/{scanId}/events-stream for live terminal events
+  - Generated hooks are imported from @workspace/api-client-react
+  - Defaulting to a dark cyberpunk theme

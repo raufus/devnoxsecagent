@@ -1,0 +1,9 @@
+node_modules/
+.git/
+.github/
+*.log
+.DS_Store
+artifacts/scanner/
+.local/
+*.md
+Security-Analysis-Suite/
